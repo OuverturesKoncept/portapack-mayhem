@@ -72,11 +72,10 @@ private:
 		int32_t delay;
 	} credits_t;
 	
-	// TODO: Make this dinamically centered and parse \n as the delay value so it is easy to maintain
-	const credits_t credits[26] = {
+	const credits_t credits[25] = {
 		//           012345678901234567890123456789
-	    { 60,		"PortaPack Mayhem",					0 },
 		{ 60,		"PortaPack|HAVOC",					0 },
+		{ 7 * 8,	"Git hash " GIT_REVISION,			16 },
 		{ 11 * 8,	           "Gurus  J. Boone",		0 },
 		{ 18 * 8,	                  "M. Ossmann",		16 },
 		{ 11 * 8,	           "HAVOC  Furrtek",		16 },
@@ -90,8 +89,7 @@ private:
 		{ 7 * 8,	       "World map  NASA", 			16 },
 		{ 0 * 8,	"TouchTunes infos  Notpike",		16 },
 		{ 4 * 8,	    "Subaru infos  Tom",			0 },
-		{ 18 * 8,	                  "Wimmenhove",		16 },
-		{ 1 * 8,	 "GPS,TV,BTLE,NRF  Shao",			24 },
+		{ 18 * 8,	                  "Wimmenhove",		24 },
 		{ 6 * 8,	      "Thanks & donators",			16 },
 		{ 1 * 8,	 "Rainer Matla     Keld Norman",	0 },
 		{ 1 * 8,	 " Giorgio C.         DC1RDB",		0 },

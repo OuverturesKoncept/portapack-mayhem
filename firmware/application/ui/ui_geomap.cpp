@@ -30,7 +30,6 @@
 using namespace portapack;
 
 #include "string_format.hpp"
-#include "complex.hpp"
 
 namespace ui {
 
@@ -148,7 +147,7 @@ GeoMap::GeoMap(
 }
 
 void GeoMap::paint(Painter& painter) {
-	u_int16_t line;
+	Coord line;
 	std::array<ui::Color, 240> map_line_buffer;
 	const auto r = screen_rect();
 	
@@ -169,9 +168,8 @@ void GeoMap::paint(Painter& painter) {
 		display.fill_rectangle({ r.center() - Point(16, 1), { 32, 2 } }, Color::red());
 		display.fill_rectangle({ r.center() - Point(1, 16), { 2, 32 } }, Color::red());
 	} else {
-		draw_bearing(r.center(), angle_, 10, Color::red());
-		//center tag above bearing
-		painter.draw_string(r.center() - Point(((int)tag_.length() * 8 / 2), 2 * 16), style(), tag_);
+		draw_bearing({ 120, 32 + 144 }, angle_, 16, Color::red());
+		painter.draw_string({ 120 - ((int)tag_.length() * 8 / 2), 32 + 144 - 32 }, style(), tag_);
 	}
 }
 
@@ -193,16 +191,10 @@ void GeoMap::move(const float lon, const float lat) {
 	
 	Rect map_rect = screen_rect();
 	
-	// Using WGS 84/Pseudo-Mercator projection
-	x_pos = map_width * (lon_+180)/360  - (map_rect.width() / 2);
-
-	// Latitude calculation based on https://stackoverflow.com/a/10401734/2278659
-	double map_bottom = sin(-85.05 * pi / 180); // Map bitmap only goes from about -85 to 85 lat
-	double lat_rad = sin(lat * pi / 180);
-	double map_world_lon = map_width / (2 * pi); 
-    double map_offset = (map_world_lon / 2 * log((1 + map_bottom) / (1 - map_bottom)));
-	y_pos = map_height - ((map_world_lon / 2 * log((1 + lat_rad) / (1 - lat_rad))) - map_offset) - 128; // Offset added for the GUI
-
+	// Map is in Equidistant "Plate Carrée" projection
+	x_pos = map_center_x - (map_rect.width() / 2) + (lon_ / lon_ratio);
+	y_pos = map_center_y - (map_rect.height() / 2) + (lat_ / lat_ratio) + 16;
+	
 	// Cap position
 	if (x_pos > (map_width - map_rect.width()))
 		x_pos = map_width - map_rect.width();
@@ -236,8 +228,8 @@ void GeoMap::draw_bearing(const Point origin, const uint32_t angle, uint32_t siz
 	
 	for (size_t thickness = 0; thickness < 3; thickness++) {
 		arrow_a = polar_to_point(angle, size) + origin;
-		arrow_b = polar_to_point(angle + 180 - 35, size) + origin;
-		arrow_c = polar_to_point(angle + 180 + 35, size) + origin;
+		arrow_b = polar_to_point(angle + 180 - 30, size) + origin;
+		arrow_c = polar_to_point(angle + 180 + 30, size) + origin;
 		
 		display.draw_line(arrow_a, arrow_b, color);
 		display.draw_line(arrow_b, arrow_c, color);

@@ -24,7 +24,6 @@
 
 #include "ui_receiver.hpp"
 #include "ui_font_fixed_8x16.hpp"
-#include "freqman.hpp"
 
 namespace ui {
 
@@ -66,17 +65,13 @@ private:
 	void handle_retune(uint32_t i);
 	
 	std::vector<rf::Frequency> frequency_list { };
-	std::vector<string> description_list { };
-	int32_t trigger { 0 };
 	int32_t squelch { 0 };
 	uint32_t timer { 0 };
-	uint32_t wait { 0 };
-	freqman_db database { };
 	
 	Labels labels {
-		{ { 0 * 8, 0 * 16 }, "LNA:    TRIGGER:  /99   VOL:", Color::light_grey() },
-		{ { 0 * 8, 1 * 16 }, "VGA:    SQUELCH:  /99   AMP:", Color::light_grey() },
-		{ { 0 * 8, 2 * 16 }, " BW:       WAIT:", Color::light_grey() },
+		{ { 0 * 8, 0 * 16 }, "LNA:   VGA:   AMP:  VOL:", Color::light_grey() },
+		{ { 0 * 8, 1 * 16 }, "SQUELCH:  /99", Color::light_grey() },
+		{ { 0 * 8, 3 * 16 }, "Work in progress...", Color::light_grey() }
 	};
 	
 	LNAGainField field_lna {
@@ -84,33 +79,15 @@ private:
 	};
 
 	VGAGainField field_vga {
-		{ 4 * 8, 1 * 16 }
+		{ 11 * 8, 0 * 16 }
 	};
 	
 	RFAmpField field_rf_amp {
-		{ 28 * 8, 1 * 16 }
+		{ 18 * 8, 0 * 16 }
 	};
 	
 	NumberField field_volume {
-		{ 28 * 8, 0 * 16 },
-		2,
-		{ 0, 99 },
-		1,
-		' ',
-	};
-
-	OptionsField field_bw {
-		{ 4 * 8, 2 * 16 },
-		3,
-		{
-			{ "8k5", 0 },
-			{ "11k", 0 },
-			{ "16k", 0 },
-		}
-	};
-
-	NumberField field_trigger {
-		{ 16 * 8, 0 * 16 },
+		{ 24 * 8, 0 * 16 },
 		2,
 		{ 0, 99 },
 		1,
@@ -118,28 +95,16 @@ private:
 	};
 	
 	NumberField field_squelch {
-		{ 16 * 8, 1 * 16 },
+		{ 8 * 8, 1 * 16 },
 		2,
 		{ 0, 99 },
 		1,
 		' ',
 	};
-
-	NumberField field_wait {
-		{ 16 * 8, 2 * 16 },
-		2,
-		{ 0, 99 },
-		1,
-		' ',
-	};
-
+	
 	Text text_cycle {
 		{ 0, 5 * 16, 240, 16 },
 		"--/--"
-	};
-	Text desc_cycle {
-		{0, 6 * 16, 240, 16 },
-		" "
 	};
 	
 	std::unique_ptr<ScannerThread> scan_thread { };

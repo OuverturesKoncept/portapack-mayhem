@@ -58,6 +58,7 @@ void APRSTXView::start_tx() {
 	
 	transmitter_model.set_tuning_frequency(persistent_memory::tuned_frequency());
 	transmitter_model.set_sampling_rate(AFSK_TX_SAMPLERATE);
+	transmitter_model.set_rf_amp(true);
 	transmitter_model.set_baseband_bandwidth(1750000);
 	transmitter_model.enable();
 	
@@ -107,10 +108,7 @@ APRSTXView::APRSTXView(NavigationView& nav) {
 	};
 	
 	tx_view.on_edit_frequency = [this, &nav]() {
-		auto new_view = nav.push<FrequencyKeypadView>(receiver_model.tuning_frequency());
-		new_view->on_changed = [this](rf::Frequency f) {
-			receiver_model.set_tuning_frequency(f);
-		};
+		return;
 	};
 	
 	tx_view.on_start = [this]() {

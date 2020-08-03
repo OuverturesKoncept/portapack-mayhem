@@ -78,8 +78,6 @@ public:
 		AFSKRxConfigure = 22,
 		StatusRefresh = 23,
 		SamplerateConfig = 24,
-		BTLERxConfigure = 25,
-		NRFRxConfigure = 26,
 
 		TXProgress = 30,
 		Retune = 31,
@@ -724,46 +722,6 @@ public:
 	const bool trigger_word;
 };
 
-class BTLERxConfigureMessage : public Message {
-public:
-	constexpr BTLERxConfigureMessage(
-		const uint32_t baudrate,
-		const uint32_t word_length,
-		const uint32_t trigger_value,
-		const bool trigger_word
-	) : Message { ID::BTLERxConfigure },
-		baudrate(baudrate),
-		word_length(word_length),
-		trigger_value(trigger_value),
-		trigger_word(trigger_word)
-	{
-    }
-	const uint32_t baudrate;
-	const uint32_t word_length;
-	const uint32_t trigger_value;
-	const bool trigger_word;
-};
-
-class NRFRxConfigureMessage : public Message {
-public:
-	constexpr NRFRxConfigureMessage(
-		const uint32_t baudrate,
-		const uint32_t word_length,
-		const uint32_t trigger_value,
-		const bool trigger_word
-	) : Message { ID::NRFRxConfigure },
-		baudrate(baudrate),
-		word_length(word_length),
-		trigger_value(trigger_value),
-		trigger_word(trigger_word)
-	{
-    }
-	const uint32_t baudrate;
-	const uint32_t word_length;
-	const uint32_t trigger_value;
-	const bool trigger_word;
-};
-
 class PitchRSSIConfigureMessage : public Message {
 public:
 	constexpr PitchRSSIConfigureMessage(
@@ -989,16 +947,13 @@ public:
 class POCSAGConfigureMessage : public Message {
 public:
 	constexpr POCSAGConfigureMessage(
-		const pocsag::BitRate bitrate,
-		const bool phase
+		const pocsag::BitRate bitrate
 	) : Message { ID::POCSAGConfigure },
-		bitrate(bitrate),
-		phase(phase)
+		bitrate(bitrate)
 	{
 	}
 
 	const pocsag::BitRate bitrate;
-	const bool phase;
 };
 
 class ADSBConfigureMessage : public Message {

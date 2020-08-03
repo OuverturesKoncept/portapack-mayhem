@@ -231,7 +231,6 @@ ReplayAppView::~ReplayAppView() {
 }
 
 void ReplayAppView::on_hide() {
-	stop(false);
 	// TODO: Terrible kludge because widget system doesn't notify Waterfall that
 	// it's being shown or hidden.
 	waterfall.on_hide();

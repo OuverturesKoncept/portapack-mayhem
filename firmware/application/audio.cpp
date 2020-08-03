@@ -26,7 +26,6 @@
 using portapack::clock_manager;
 
 #include "portapack_hal.hpp"
-#include "portapack_persistent_memory.hpp"
 
 #include "i2s.hpp"
 using namespace lpc43xx;
@@ -153,16 +152,6 @@ void unmute() {
 	i2s::i2s0::tx_unmute();
 	audio_codec->headphone_enable();
 }
-
-void speaker_mute() {
- 	i2s::i2s0::tx_mute();
- 	audio_codec->speaker_disable();
- }
-
- void speaker_unmute() {
- 	i2s::i2s0::tx_unmute();
- 	audio_codec->speaker_enable();
- }
 
 } /* namespace output */
 

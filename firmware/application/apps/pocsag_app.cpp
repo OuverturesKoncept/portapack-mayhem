@@ -69,7 +69,6 @@ POCSAGAppView::POCSAGAppView(NavigationView& nav) {
 		&field_vga,
 		&field_frequency,
 		&options_bitrate,
-		&options_phase,
 		&check_log,
 		&check_ignore,
 		&sym_ignore,
@@ -100,13 +99,10 @@ POCSAGAppView::POCSAGAppView(NavigationView& nav) {
 	};
 	
 	options_bitrate.on_change = [this](size_t, OptionsField::value_t v) {
-		on_config_changed(v, options_phase.selected_index_value());
+		on_bitrate_changed(v);
 	};
 	options_bitrate.set_selected_index(1);	// 1200bps
 	
-	options_phase.on_change = [this](size_t, OptionsField::value_t v) {
-		on_config_changed(options_bitrate.selected_index_value(),v);
-	};
 	check_ignore.set_value(ignore);
 	check_ignore.on_select = [this](Checkbox&, bool v) {
 		ignore = v;
@@ -201,8 +197,8 @@ void POCSAGAppView::on_packet(const POCSAGPacketMessage * message) {
 		logger->log_raw_data(message->packet, target_frequency());
 }
 
-void POCSAGAppView::on_config_changed(const uint32_t new_bitrate, bool new_phase) {
-	baseband::set_pocsag(pocsag_bitrates[new_bitrate], new_phase);
+void POCSAGAppView::on_bitrate_changed(const uint32_t new_bitrate) {
+	baseband::set_pocsag(pocsag_bitrates[new_bitrate]);
 }
 
 void POCSAGAppView::set_target_frequency(const uint32_t new_value) {

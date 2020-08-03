@@ -59,7 +59,6 @@ public:
 
 	void start();
 	void stop();
-	void on_hide() override;
 
 	bool is_active() const;
 

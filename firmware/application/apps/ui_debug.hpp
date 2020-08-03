@@ -287,16 +287,14 @@ private:
 	};
 };*/
 
-class DebugPeripheralsMenuView : public BtnGridView {
+class DebugPeripheralsMenuView : public MenuView {
 public:
 	DebugPeripheralsMenuView(NavigationView& nav);
-	std::string title() const override { return "Peripherals"; };	
 };
 
-class DebugMenuView : public BtnGridView {
+class DebugMenuView : public MenuView {
 public:
 	DebugMenuView(NavigationView& nav);
-	std::string title() const override { return "Debug"; };	
 };
 
 } /* namespace ui */

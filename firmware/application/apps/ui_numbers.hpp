@@ -50,7 +50,7 @@ public:
 
 	void focus() override;
 	
-	std::string title() const override { return "Station"; };
+	std::string title() const override { return "Numbers station"; };
 	
 private:
 	NavigationView& nav_;
