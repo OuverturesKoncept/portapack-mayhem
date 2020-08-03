@@ -27,6 +27,7 @@
 #include "ui_widget.hpp"
 #include "ui_focus.hpp"
 #include "ui_menu.hpp"
+#include "ui_btngrid.hpp"
 
 #include "ui_rssi.hpp"
 #include "ui_channel.hpp"
@@ -105,10 +106,11 @@ public:
 	SystemStatusView(NavigationView& nav);
 
 	void set_back_enabled(bool new_value);
+	void set_title_image_enabled(bool new_value);
 	void set_title(const std::string new_value);
 
 private:
-	static constexpr auto default_title = "PortaPack|Havoc";
+	static constexpr auto default_title = "        v1.1.1"; // TODO: Move the version somewhere
 	
 	NavigationView& nav_;
 
@@ -125,9 +127,23 @@ private:
 	};
 
 	Text title {
-		{ 20, 0, 16 * 8, 1 * 16 },
+		{ 20, 0, 14 * 8, 1 * 16 },
 		default_title,
 	};
+
+	ImageButton button_title {
+		{2, 0, 80, 16},
+		&bitmap_titlebar_image,
+		Color::white(),
+		Color::dark_grey()
+	};
+
+	ImageButton button_speaker {
+ 		{ 17 * 8, 0, 2 * 8, 1 * 16 },
+ 		&bitmap_icon_speaker_mute,
+ 		Color::light_grey(),
+ 		Color::dark_grey()
+ 	};
 	
 	ImageButton button_stealth {
 		{ 19 * 8, 0, 2 * 8, 1 * 16 },
@@ -175,10 +191,12 @@ private:
 		{ 28 * 8, 0 * 16,  2 * 8, 1 * 16 }
 	};
 
+	void on_speaker();
 	void on_stealth();
 	void on_bias_tee();
 	//void on_textentry();
 	void on_camera();
+	void on_title();
 	void refresh();
 	
 	MessageHandlerRegistration message_handler_refresh {
@@ -198,8 +216,8 @@ public:
 
 private:
 	Text text_info {
-		{ 76, 284, 20 * 8, 16 },
-		"GIT " GIT_REVISION
+		{ 4*8, 284, 20 * 8, 16 },
+		"Version " VERSION_STRING
 	};
 	
 	Button button_done {
@@ -208,25 +226,25 @@ private:
 	};
 };
 
-class ReceiversMenuView : public MenuView {
+class ReceiversMenuView : public BtnGridView {
 public:
 	ReceiversMenuView(NavigationView& nav);
 	std::string title() const override { return "Receivers"; };
 };
 
-class TransmittersMenuView : public MenuView {
+class TransmittersMenuView : public BtnGridView {
 public:
 	TransmittersMenuView(NavigationView& nav);
 	std::string title() const override { return "Transmitters"; };
 };
 
-class UtilitiesMenuView : public MenuView {
+class UtilitiesMenuView : public BtnGridView {
 public:
 	UtilitiesMenuView(NavigationView& nav);
 	std::string title() const override { return "Utilities"; };	
 };
 
-class SystemMenuView : public MenuView {
+class SystemMenuView : public BtnGridView {
 public:
 	SystemMenuView(NavigationView& nav);
 private:
@@ -248,7 +266,7 @@ private:
 	Context& context_;
 };
 
-class NotImplementedView : public View {
+/*class NotImplementedView : public View {
 public:
 	NotImplementedView(NavigationView& nav);
 
@@ -264,7 +282,7 @@ private:
 		{ 10 * 8, 13 * 16, 10 * 8, 24 },
 		"Bummer",
 	};
-};
+};*/
 
 class ModalMessageView : public View {
 public:

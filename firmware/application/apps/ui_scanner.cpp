@@ -64,7 +64,7 @@ void ScannerThread::run() {
 			// Retune
 			receiver_model.set_tuning_frequency(frequency_list_[frequency_index]);
 			
-			message.range = frequency_list_[frequency_index];
+			message.range = frequency_index;
 			EventDispatcher::send_message(message);
 			
 			
@@ -78,7 +78,10 @@ void ScannerThread::run() {
 }
 
 void ScannerView::handle_retune(uint32_t i) {
-	text_cycle.set("Scanning: " + to_string_dec_uint(i)); // + "/" + to_string_dec_uint(frequency_list.size()));
+	text_cycle.set(	to_string_dec_uint(i) + "/" +
+					to_string_dec_uint(frequency_list.size()) + " : " +
+					to_string_dec_uint(frequency_list[i]) );
+	desc_cycle.set( description_list[i] );
 }
 
 void ScannerView::focus() {
@@ -101,51 +104,68 @@ ScannerView::ScannerView(
 		&field_vga,
 		&field_rf_amp,
 		&field_volume,
+		&field_bw,
+		&field_trigger,
 		&field_squelch,
+		&field_wait,
 		//&record_view,
 		&text_cycle,
+		&desc_cycle,
 		//&waterfall,
 	});
-	
-       //read scanner frequency file
 
-	File scanner_file;
-	size_t file_position = 0;
-	char * line_start;
-	std::string description;
-	char file_data[13];
-	//freqman_entry_type type;
-	
-	//db.clear();
-	
-	auto result = scanner_file.open("/scanner-freq.TXT"); // This file has one frequency per line, with mandatory 10 digits (Hz) + CrLF = 12 characters
-	frequency_list.push_back(144000000); // In case the file does not contain anything, here is one frequency
-	
-	while (1) {
-		// Read a 10 bytes block from file
-		scanner_file.seek(file_position);
-		
-		memset(file_data, 0, 13);
-		auto read_size = scanner_file.read(file_data, 12);
-		
-		file_position += 12;
-		
-		// Reset line_start to beginning of buffer
-		line_start = file_data;
-		
-		if (strstr(file_data, "END")) // Last line of file needs to contain "ENDENDENDE"+CrLf
-			break;
-		
-		// Read frequency
-		frequency_list.push_back(atol(line_start));
-		
+	std::string scanner_file = "SCANNER";
+	if (load_freqman_file(scanner_file, database)) {
+		for(auto& entry : database) {
+			// FIXME
+			if (entry.type == RANGE) {
+				for (uint32_t i=entry.frequency_a; i < entry.frequency_b; i+= 1000000) {
+					frequency_list.push_back(i);
+					description_list.push_back("RNG " + to_string_dec_uint(entry.frequency_a) + ">" + to_string_dec_uint(entry.frequency_b));
+				}
+			} else {
+				frequency_list.push_back(entry.frequency_a);
+				description_list.push_back(entry.description);
+			}
+		}
+	} else {
+		// DEBUG
+		// TODO: Clean this
+		frequency_list.push_back(466025000);
+		description_list.push_back("POCSAG-France");
+		frequency_list.push_back(466050000);
+		description_list.push_back("POCSAG-France");
+		frequency_list.push_back(466075000);
+		description_list.push_back("POCSAG-France");
+		frequency_list.push_back(466175000);
+		description_list.push_back("POCSAG-France");
+		frequency_list.push_back(466206250);
+		description_list.push_back("POCSAG-France");
+		frequency_list.push_back(466231250);
+		description_list.push_back("POCSAG-France");
 	}
 
+	field_bw.set_selected_index(2);
+	field_bw.on_change = [this](size_t n, OptionsField::value_t) {
+		receiver_model.set_nbfm_configuration(n);
+	};
 
+	field_wait.on_change = [this](int32_t v) {
+		wait = v;
+	};
+	field_wait.set_value(5);
+
+	field_trigger.on_change = [this](int32_t v) {
+		trigger = v;
+	};
+	field_trigger.set_value(30);
+	
+	field_squelch.set_value(receiver_model.squelch_level());
 	field_squelch.on_change = [this](int32_t v) {
 		squelch = v;
+		receiver_model.set_squelch_level(v);
 	};
-	field_squelch.set_value(30);
+
 
 	field_volume.set_value((receiver_model.headphone_volume() - audio::headphone::volume_range().max).decibel() + 99);
 	field_volume.on_change = [this](int32_t v) {
@@ -161,7 +181,7 @@ ScannerView::ScannerView(
 	receiver_model.set_baseband_bandwidth(1750000);
 	receiver_model.enable();
 	receiver_model.set_squelch_level(0);
-	receiver_model.set_nbfm_configuration(0);	// 8k5 <-- changed from 2 to 0 (16k to 8k5)
+	receiver_model.set_nbfm_configuration(field_bw.selected_index());
 	audio::output::unmute();
 	
 	// TODO: Scanning thread here
@@ -171,11 +191,11 @@ ScannerView::ScannerView(
 void ScannerView::on_statistics_update(const ChannelStatistics& statistics) {
 	int32_t max_db = statistics.max_db;
 	
-	if (timer < 26) // Increased timer from 5 to 25
+	if (timer <= wait)
 		timer++;
 	
-	if (max_db < -squelch) {
-		if (timer == 25) { // Increased timer from 5 to 25 to allow for some extra time after transmission finishes
+	if (max_db < -trigger) {
+		if (timer == wait) {
 			//audio::output::stop();
 			scan_thread->set_scanning(true);
 		}
